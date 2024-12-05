@@ -3,43 +3,160 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Live Animated Clock</title>
+<title>Interactive Clock with Theme & Alarm</title>
 <style>
   body {
-    background: linear-gradient(to bottom right, #111, #333);
-    font-family: sans-serif;
+    margin:0; 
+    font-family: sans-serif; 
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* Default (dark) theme */
+  body.dark {
+    background: #111;
     color: #fff;
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    height: 100vh; 
-    margin: 0;
   }
+
+  /* Light theme */
+  body.light {
+    background: #f7f7f7;
+    color: #111;
+  }
+
+  .container {
+    display:flex;
+    flex-direction: column;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+    padding:20px;
+    box-sizing:border-box;
+  }
+
   .clock {
-    font-size: 6rem;
-    letter-spacing: 0.1em;
-    display: inline-block;
-    animation: fadeIn 2s ease-in-out;
+    font-size:6rem;
+    letter-spacing:0.1em;
+    margin:20px 0;
   }
-  @keyframes fadeIn {
-    from {opacity: 0; transform: translateY(-20px);}
-    to {opacity: 1; transform: translateY(0);}
+
+  .date {
+    font-size:1.2rem;
+    margin-bottom:20px;
   }
+
+  .controls, .alarm-section {
+    display:flex;
+    gap:10px;
+    margin:10px 0;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  button, input {
+    padding:5px 10px;
+    font-size:1rem;
+  }
+
+  .alarm-active {
+    animation: flash 1s alternate infinite;
+  }
+
+  @keyframes flash {
+    0% { background: inherit; }
+    100% { background: red; color:#fff; }
+  }
+
 </style>
 </head>
-<body>
-<div class="clock"></div>
+<body class="dark">
+<div class="container">
+  <h1>Interactive Clock</h1>
+  <div class="clock"></div>
+  <div class="date"></div>
+
+  <div class="controls">
+    <button id="themeToggle">Toggle Theme</button>
+  </div>
+
+  <div class="alarm-section">
+    <input type="time" id="alarmTime" />
+    <button id="setAlarmBtn">Set Alarm</button>
+    <button id="clearAlarmBtn">Clear Alarm</button>
+  </div>
+
+  <!-- Hidden audio element for alarm -->
+  <audio id="alarmSound" src="data:audio/wav;base64,UklGRkS4AABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA="></audio>
+</div>
+
 <script>
+  // === CLOCK ===
   const clockEl = document.querySelector('.clock');
+  const dateEl = document.querySelector('.date');
+  let currentTheme = 'dark';
+  document.body.classList.add(currentTheme);
+
   function updateTime() {
     const now = new Date();
     const h = String(now.getHours()).padStart(2,'0');
     const m = String(now.getMinutes()).padStart(2,'0');
     const s = String(now.getSeconds()).padStart(2,'0');
     clockEl.textContent = `${h}:${m}:${s}`;
+
+    // Show date as well
+    dateEl.textContent = now.toLocaleDateString('en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+    
+    checkAlarm(h, m, s);
   }
+  
   updateTime();
   setInterval(updateTime, 1000);
+
+  // === THEME TOGGLE ===
+  const themeToggleBtn = document.getElementById('themeToggle');
+  themeToggleBtn.addEventListener('click', () => {
+    currentTheme = (currentTheme === 'dark') ? 'light' : 'dark';
+    document.body.className = currentTheme;
+  });
+
+  // === ALARM ===
+  let alarmTime = null;
+  let alarmSet = false;
+  let alarmRinging = false;
+  const alarmTimeInput = document.getElementById('alarmTime');
+  const setAlarmBtn = document.getElementById('setAlarmBtn');
+  const clearAlarmBtn = document.getElementById('clearAlarmBtn');
+  const alarmSound = document.getElementById('alarmSound');
+
+  setAlarmBtn.addEventListener('click', () => {
+    alarmTime = alarmTimeInput.value;
+    if(alarmTime) {
+      alarmSet = true;
+      alert(`Alarm set for ${alarmTime}`);
+    }
+  });
+
+  clearAlarmBtn.addEventListener('click', () => {
+    alarmSet = false;
+    alarmRinging = false;
+    alarmTime = null;
+    document.body.classList.remove('alarm-active');
+    alarmSound.pause();
+    alarmSound.currentTime = 0;
+  });
+
+  function checkAlarm(h, m, s) {
+    if(alarmSet && !alarmRinging) {
+      const currentTimeStr = `${h}:${m}`;
+      if(currentTimeStr === alarmTime) {
+        alarmRinging = true;
+        document.body.classList.add('alarm-active');
+        alarmSound.loop = true;
+        alarmSound.play();
+        alert("Alarm ringing!");
+      }
+    }
+  }
+
 </script>
 </body>
 </html>
