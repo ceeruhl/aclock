@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Live Animated Clock</title>
+<style>
+  body {
+    background: linear-gradient(to bottom right, #111, #333);
+    font-family: sans-serif;
+    color: #fff;
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    height: 100vh; 
+    margin: 0;
+  }
+  .clock {
+    font-size: 6rem;
+    letter-spacing: 0.1em;
+    display: inline-block;
+    animation: fadeIn 2s ease-in-out;
+  }
+  @keyframes fadeIn {
+    from {opacity: 0; transform: translateY(-20px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
+</style>
+</head>
+<body>
+<div class="clock"></div>
+<script>
+  const clockEl = document.querySelector('.clock');
+  function updateTime() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    const s = String(now.getSeconds()).padStart(2,'0');
+    clockEl.textContent = `${h}:${m}:${s}`;
+  }
+  updateTime();
+  setInterval(updateTime, 1000);
+</script>
+</body>
+</html>
