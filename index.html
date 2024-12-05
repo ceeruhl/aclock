@@ -11,16 +11,16 @@
     transition: background 0.3s, color 0.3s;
   }
 
-  /* Default (dark) theme */
+  /* Dark theme */
   body.dark {
     background: #111;
     color: #fff;
   }
 
-  /* Light theme */
+  /* Light theme (very different background) */
   body.light {
-    background: #f7f7f7;
-    color: #111;
+    background: #fffae3;
+    color: #000;
   }
 
   .container {
@@ -79,7 +79,8 @@
   </div>
 
   <div class="alarm-section">
-    <input type="time" id="alarmTime" />
+    <!-- Setting min and max to force 24-hour format in many browsers -->
+    <input type="time" id="alarmTime" min="00:00" max="23:59"/>
     <button id="setAlarmBtn">Set Alarm</button>
     <button id="clearAlarmBtn">Clear Alarm</button>
   </div>
@@ -103,7 +104,12 @@
     clockEl.textContent = `${h}:${m}:${s}`;
 
     // Show date as well
-    dateEl.textContent = now.toLocaleDateString('en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+    dateEl.textContent = now.toLocaleDateString('en-US', {
+      weekday:'long', 
+      year:'numeric', 
+      month:'long', 
+      day:'numeric'
+    });
     
     checkAlarm(h, m, s);
   }
@@ -115,6 +121,7 @@
   const themeToggleBtn = document.getElementById('themeToggle');
   themeToggleBtn.addEventListener('click', () => {
     currentTheme = (currentTheme === 'dark') ? 'light' : 'dark';
+    console.log('Theme toggled. Current theme:', currentTheme); // Debugging
     document.body.className = currentTheme;
   });
 
@@ -132,6 +139,8 @@
     if(alarmTime) {
       alarmSet = true;
       alert(`Alarm set for ${alarmTime}`);
+    } else {
+      alert('Please select a valid time.');
     }
   });
 
@@ -156,7 +165,6 @@
       }
     }
   }
-
 </script>
 </body>
 </html>
